@@ -108,4 +108,4 @@ const main = async () => {
   }
 }
 
-new CronJob('0 0 * * * *', main)
+new CronJob('0 */10 * * * *', main)
