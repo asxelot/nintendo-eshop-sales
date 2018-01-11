@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api')
 const request = require('request')
 const fs = require('fs')
+const CronJob = requier('cron').CronJob
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
 const chats = []
@@ -8,7 +9,7 @@ const chats = []
 bot.onText(/\/start/, msg => {
   const chatId = msg.chat.id
 
-  if (chats.indexOf(chatOd) === -1) {
+  if (chats.indexOf(chatId) === -1) {
     chats.push(chatId)
     bot.sendMessage(chatId, 'You subscribed. Send `/stop` to unsubscribe.')
   }
@@ -90,12 +91,18 @@ const sendGames = games => {
 }
 
 const main = async () => {
-  const yesterdayGamesId = getYesterdayGames().map(g => g.id)
-  const games = await loadAllGames()
+  try {
+    const yesterdayGamesId = getYesterdayGames().map(g => g.id)
+    const games = await loadAllGames()
 
-  const newGames = games.filter(game => !yesterdayGamesId.includes(game.id))
+    const newGames = games.filter(game => !yesterdayGamesId.includes(game.id))
 
-  sendGames(newGames)
+    sendGames(newGames)
 
-  saveGames(games)
+    saveGames(games)
+  } catch (error) {
+    console.error(error)
+  }
 }
+
+new CronJob('0 0 * * * *', main)
