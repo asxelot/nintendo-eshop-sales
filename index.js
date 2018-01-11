@@ -1,16 +1,22 @@
 const TelegramBot = require('node-telegram-bot-api')
-const CronJob = require('cron').CronJob
 const http = require('http')
 const fs = require('fs')
-const eshop = require('./eshop')
+const Eshop = require('./eshop')
 
 const { PORT, TELEGRAM_TOKEN, APP_URL } = process.env
+
+const eshop = new Eshop()
 
 // keep Heroku asleep
 http.createServer().listen(PORT)
 setInterval(() => {
   http.get(APP_URL)
+  eshop.run()
 }, 5 * 60 * 1000)
+
+setInterval(() => {
+  eshop.run()
+}, 60 * 60 * 1000)
 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true })
 const chats = []
@@ -34,5 +40,3 @@ bot.onText(/\/stop/, msg => {
 })
 
 bot.on('polling_error', error => console.error(error))
-
-new CronJob('0 */10 * * * *', () => eshop.run())

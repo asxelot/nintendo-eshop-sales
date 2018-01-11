@@ -1,12 +1,17 @@
 const request = require('request')
 
-class Eshop {
+module.exports = class Eshop {
   async run () {
+    console.log('run')
     try {
       const yesterdayGamesId = this._getYesterdayGames().map(g => g.id)
       const games = await this._loadAllGames()
 
+      console.log('loaded games on sale: ', games.length)
+
       const newGames = games.filter(game => !yesterdayGamesId.includes(game.id))
+
+      console.log('new games: ', newGames.length)
 
       this._sendGames(newGames)
 
@@ -74,6 +79,7 @@ class Eshop {
   }
 
   _sendToAll (msg) {
+    console.log('send to all: ', msg)
     chats.forEach(chatId => bot.sendMessage(chatId, msg))
   }
 
@@ -89,5 +95,3 @@ class Eshop {
     })
   }
 }
-
-module.exports = new Eshop()
