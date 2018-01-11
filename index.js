@@ -1,12 +1,18 @@
 const TelegramBot = require('node-telegram-bot-api')
 const CronJob = require('cron').CronJob
-const request = require('request')
 const http = require('http')
 const fs = require('fs')
+const eshop = require('./eshop')
 
-http.createServer().listen(process.env.PORT)
+const { PORT, TELEGRAM_TOKEN, APP_URL } = process.env
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
+// keep Heroku asleep
+http.createServer().listen(PORT)
+setInterval(() => {
+  http.get(APP_URL)
+}, 5 * 60 * 1000)
+
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true })
 const chats = []
 
 bot.onText(/\/start/, msg => {
@@ -27,85 +33,6 @@ bot.onText(/\/stop/, msg => {
   }
 })
 
-const saveGames = games => {
-  const json = {
-    games,
-    updated: new Date().toString()
-  }
-  fs.writeFileSync('db.json', JSON.stringify(json))
-}
+bot.on('polling_error', error => console.error(error))
 
-const getYesterdayGames = () => {
-  try {
-    json = JSON.parse(fs.readFileSync('db.json'))
-    return json.games
-  } catch (e) {
-    const games = []
-    saveGames(games)
-    return games
-  }
-}
-
-const loadAllGames = async () => {
-  const url = 'https://www.nintendo.com/json/content/get/filter/game'
-  const games = []
-  const limit = 50
-  let offset = 0
-  let total = 0
-
-  do {
-    const res = await new Promise((resolve, reject) => {
-      request({
-        url,
-        json: true,
-        qs: {
-          limit,
-          offset,
-          sale: true
-        }
-      }, (err, response) => {
-        if (err) reject(err)
-        resolve(response.body)
-      })
-    })
-
-    total = res.filter.total
-    offset += limit
-    games.push(...res.games.game)
-  } while (offset < total)
-
-  return games
-}
-
-const sendToAll = msg => {
-  chats.forEach(chatId => bot.sendMessage(chatId, msg))
-}
-
-const sendGames = games => {
-  games.forEach(game => {
-    const msg = [
-      `**${game.title}**`,
-      `**$${game.sale_price}** \`$${game.ca_price}\``,
-      `https://www.nintendo.com/games/detail/${game.id}`
-    ].join('\n')
-
-    sendToAll(msg)
-  })
-}
-
-const main = async () => {
-  try {
-    const yesterdayGamesId = getYesterdayGames().map(g => g.id)
-    const games = await loadAllGames()
-
-    const newGames = games.filter(game => !yesterdayGamesId.includes(game.id))
-
-    sendGames(newGames)
-
-    saveGames(games)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-new CronJob('0 */10 * * * *', main)
+new CronJob('0 */10 * * * *', () => eshop.run())
