@@ -1,0 +1,1 @@
+Just add @eshopSalesBot to contact and type `/start`
