@@ -1,7 +1,7 @@
 const request = require('request')
 
 class Eshop {
-  run () {
+  async run () {
     try {
       const yesterdayGamesId = this._getYesterdayGames().map(g => g.id)
       const games = await this._loadAllGames()
