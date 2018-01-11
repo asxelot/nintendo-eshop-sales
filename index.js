@@ -1,17 +1,17 @@
 const TelegramBot = require('node-telegram-bot-api')
+const request = require('request')
 const http = require('http')
 const fs = require('fs')
+
 const Eshop = require('./eshop')
+const eshop = new Eshop()
 
 const { PORT, TELEGRAM_TOKEN, APP_URL } = process.env
-
-const eshop = new Eshop()
 
 // keep Heroku asleep
 http.createServer().listen(PORT)
 setInterval(() => {
-  http.get(APP_URL)
-  eshop.run()
+  request(APP_URL)
 }, 5 * 60 * 1000)
 
 setInterval(() => {
