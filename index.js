@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api')
 const request = require('request')
 const fs = require('fs')
-const CronJob = requier('cron').CronJob
+const CronJob = require('cron').CronJob
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
 const chats = []
