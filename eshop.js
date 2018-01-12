@@ -71,6 +71,7 @@ module.exports = class Eshop {
         qs: {
           limit,
           offset,
+          system: 'switch',
           sale: true
         }
       })
