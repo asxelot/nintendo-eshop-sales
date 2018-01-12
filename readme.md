@@ -1,1 +1,1 @@
-Just add @eshopSalesBot to contact and type `/start`
+`TELEGRAM_TOKEN=<...> MONGO_URL=mongodb://<dbuser>:<dbpassword>@mlab.com:51827/db-name node index.js`
