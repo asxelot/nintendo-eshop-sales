@@ -130,9 +130,8 @@ module.exports = class Eshop {
   async _sendGames (games) {
     for (let i = 0; i < games.length; i++) {
       const msg = [
-        `*${games[i].title}*`,
-        `*$${games[i].sale_price}* \`$${games[i].eshop_price}\``,
-        `https://www.nintendo.com/games/detail/${games[i].id}`
+        `[${games[i].title}](https://www.nintendo.com/games/detail/${games[i].id})`,
+        `*$${games[i].sale_price}* \`$${games[i].eshop_price}\``
       ].join('\n')
 
       await this._sendToAll(msg)
