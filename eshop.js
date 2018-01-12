@@ -116,7 +116,7 @@ module.exports = class Eshop {
   async _sendToAll (msg) {
     const chats = await Chat.find()
     console.log('send to all', chats)
-    chats.forEach(chat => this.bot.sendMessage(chat.id, msg))
+    chats.forEach(chat => this.bot.sendMessage(chat.id, null, msg))
   }
 
   /**
@@ -127,8 +127,8 @@ module.exports = class Eshop {
   async _sendGames (games) {
     for (let i = 0; i < games.length; i++) {
       const msg = [
-        `**${games[i].title}**`,
-        `**$${games[i].sale_price}** \`$${games[i].eshop_price}\``,
+        `*${games[i].title}*`,
+        `*$${games[i].sale_price}* \`$${games[i].eshop_price}\``,
         `https://www.nintendo.com/games/detail/${games[i].id}`
       ].join('\n')
 

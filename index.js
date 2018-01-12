@@ -59,7 +59,7 @@ bot.onText(/\/stop/, async msg => {
 })
 
 bot.onText(/\/test/, msg => {
-  bot.sendMessage(msg.chat.id, '**bold** __italic__ `code`')
+  bot.sendMessage(msg.chat.id, null, '*bold* _italic_ `code`')
 })
 
 bot.on('polling_error', error => console.error(error))
