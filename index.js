@@ -18,10 +18,10 @@ mongoose.connect(MONGO_URL)
     .on('error', err => console.error('MongoErr: ', err))
 
 // keep Heroku asleep
-http.createServer().listen(PORT)
+http.createServer((req, res) => res.end('Hello')).listen(PORT)
 setInterval(() => {
   request(HEROKU_APP_URL)
-}, 5 * 60 * 1000)
+}, 60 * 1000)
 
 // eshop.run()
 
