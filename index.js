@@ -2,7 +2,6 @@ const TelegramBot = require('node-telegram-bot-api')
 const mongoose = require('mongoose')
 const request = require('request')
 const http = require('http')
-const fs = require('fs')
 
 const Eshop = require('./eshop')
 const Chat = require('./models/chat')
@@ -37,12 +36,12 @@ bot.onText(/\/start/, async msg => {
   if (!chat) {
     await Chat.create(msg.chat)
 
-    bot.sendMessage(chatId, 'You subscribed. Send `/stop` to unsubscribe.')
+    bot.sendMessage(chatId, 'You subscribed. Send /stop to unsubscribe.')
   } else if (chat && !chat.isActive) {
     chat.isActive = true
     await chat.save()
 
-    bot.sendMessage(chatId, 'You subscribed. Send `/stop` to unsubscribe.')
+    bot.sendMessage(chatId, 'You subscribed. Send /stop to unsubscribe.')
   }
 })
 
@@ -54,12 +53,12 @@ bot.onText(/\/stop/, async msg => {
     chat.isActive = false
     await chat.save()
 
-    bot.sendMessage(chatId, 'You unsubscribed. Send `/start` to subscribe.')
+    bot.sendMessage(chatId, 'You unsubscribed. Send /start to subscribe.')
   }
 })
 
 bot.onText(/\/test/, msg => {
-  bot.sendMessage(msg.chat.id, null, '*bold* _italic_ `code`')
+  bot.sendMessage(msg.chat.id, '*bold* _italic_ `code`', { parse_mode: 'Markdown' })
 })
 
 bot.on('polling_error', error => console.error(error))

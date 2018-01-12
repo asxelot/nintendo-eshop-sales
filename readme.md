@@ -1,1 +1,1 @@
-`TELEGRAM_TOKEN=<...> MONGO_URL=mongodb://<dbuser>:<dbpassword>@mlab.com:51827/db-name node index.js`
+You need to set up `PORT, TELEGRAM_TOKEN, HEROKU_APP_URL, MONGO_URL` variables in `~/.profile` or `~/.bash_profile`

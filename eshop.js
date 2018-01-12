@@ -1,7 +1,7 @@
 const request = require('request')
-const fs = require('fs')
 
 const Chat = require('./models/chat')
+const Game = require('./models/game')
 
 module.exports = class Eshop {
   /**
@@ -9,7 +9,7 @@ module.exports = class Eshop {
    *
    * @param {TelegramBot} bot
    */
-  constructor(bot) {
+  constructor (bot) {
     this.bot = bot
   }
 
@@ -35,7 +35,7 @@ module.exports = class Eshop {
   /**
    * Save games
    *
-   * @param {Object[]} games
+   * @param {Promise.<Object[]>} games
    */
   async _saveGames (games) {
     await Game.remove({})
@@ -46,16 +46,16 @@ module.exports = class Eshop {
   /**
    * Get previous games to compare
    *
-   * @returns {Object[]}
+   * @returns {Promise.<Object[]>}
    */
-  async _getOldGames () {
-    return await Game.find()
+  _getOldGames () {
+    return Game.find()
   }
 
   /**
    * Load all sales games
    *
-   * @returns {Object[]}
+   * @returns {Promise.<Object[]>}
    */
   async _loadAllGames () {
     const url = 'https://www.nintendo.com/json/content/get/filter/game'
@@ -94,9 +94,9 @@ module.exports = class Eshop {
    * @param {string} options.url
    * @param {boolean} options.json
    * @param {Object} options.qs
-   * @returns
+   * @returns {Promise.<Object>}
    */
-  _request(options) {
+  _request (options) {
     return new Promise((resolve, reject) => {
       request(options, (error, response) => {
         if (error) {
@@ -116,13 +116,16 @@ module.exports = class Eshop {
   async _sendToAll (msg) {
     const chats = await Chat.find()
     console.log('send to all', chats)
-    chats.forEach(chat => this.bot.sendMessage(chat.id, null, msg))
+
+    await Promise.all(chats.map(chat => {
+      return this.bot.sendMessage(chat.id, msg, { parse_mode: 'Markdown' })
+    }))
   }
 
   /**
    * Create message and send it
    *
-   * @param {Object[]} games
+   * @param {Promise.<Object[]>} games
    */
   async _sendGames (games) {
     for (let i = 0; i < games.length; i++) {
