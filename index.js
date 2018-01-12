@@ -24,7 +24,6 @@ setInterval(() => {
 }, 60 * 1000)
 
 // eshop.run()
-
 setInterval(() => {
   eshop.run()
 }, 60 * 60 * 1000)
@@ -37,12 +36,12 @@ bot.onText(/\/start/, async msg => {
   if (!chat) {
     await Chat.create(msg.chat)
 
-    reply(chatId)
+    await reply(chatId)
   } else if (chat && !chat.isActive) {
     chat.isActive = true
     await chat.save()
 
-    reply(chatId)
+    await reply(chatId)
   }
 })
 
@@ -54,7 +53,7 @@ bot.onText(/\/stop/, async msg => {
     chat.isActive = false
     await chat.save()
 
-    bot.sendMessage(chatId, 'You unsubscribed. Send /start to subscribe.')
+    await bot.sendMessage(chatId, 'You unsubscribed. Send /start to subscribe.')
   }
 })
 

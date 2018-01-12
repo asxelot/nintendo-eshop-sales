@@ -1,7 +1,7 @@
 {
   "name": "nintendo-eshop-sales",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.1.0",
+  "description": "Telegram bot for Nintento eShop sales",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,8 +9,16 @@
   "engines": {
     "node": "9.1.0"
   },
-  "keywords": [],
-  "author": "",
+  "bugs": {
+    "url": "https://github.com/asxelot/nintendo-eshop-sales/issues",
+    "email": "asxelot@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asxelot/nintendo-eshop-sales.git"
+  },
+  "keywords": ["telegram", "bot"],
+  "author": "asxelot",
   "license": "ISC",
   "dependencies": {
     "mongoose": "^4.13.9",

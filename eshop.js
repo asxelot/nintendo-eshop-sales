@@ -14,7 +14,7 @@ module.exports = class Eshop {
   }
 
   /**
-   * Run checing sales games
+   * Run checking sales games
    *
    */
   async run () {
@@ -28,7 +28,7 @@ module.exports = class Eshop {
 
       await this._saveGames(games)
     } catch (error) {
-      console.error(error)
+      console.error(error.toString())
     }
   }
 
@@ -80,7 +80,7 @@ module.exports = class Eshop {
       offset += limit
 
       const { game } = res.games
-      const limitedGames = Array.isArray(game) ? game : [game] // fucking Nintendo API
+      const limitedGames = Array.isArray(game) ? game : [game] // WTF Nintendo?
       games.push(...limitedGames)
     } while (offset < total)
 
@@ -116,11 +116,10 @@ module.exports = class Eshop {
    */
   async _sendToAll (msg) {
     const chats = await Chat.find()
-    console.log('send to all', chats)
 
-    await Promise.all(chats.map(chat => {
-      return this.bot.sendMessage(chat.id, msg, { parse_mode: 'Markdown' })
-    }))
+    for (let i = 0; i < chats.length; i++) {
+      await this.bot.sendMessage(chats[i].id, msg, { parse_mode: 'Markdown' })
+    }
   }
 
   /**
