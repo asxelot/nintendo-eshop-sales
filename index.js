@@ -32,16 +32,17 @@ setInterval(() => {
 bot.onText(/\/start/, async msg => {
   const chatId = msg.chat.id
   const chat = await Chat.findOne({ id: chatId })
+  const reply = chatId => bot.sendMessage(chatId, 'You subscribed. Send /stop to unsubscribe.')
 
   if (!chat) {
     await Chat.create(msg.chat)
 
-    bot.sendMessage(chatId, 'You subscribed. Send /stop to unsubscribe.')
+    reply(chatId)
   } else if (chat && !chat.isActive) {
     chat.isActive = true
     await chat.save()
 
-    bot.sendMessage(chatId, 'You subscribed. Send /stop to unsubscribe.')
+    reply(chatId)
   }
 })
 
