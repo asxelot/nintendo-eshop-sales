@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "TELEGRAM_TOKEN=420438559:AAGPa4tSMb02zmU3p3OGfnMMbk1aNn1i2To node index.js"
+    "start": "node index.js"
   },
   "engines": {
     "node": "9.1.0"
