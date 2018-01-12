@@ -1,7 +1,6 @@
 const request = require('request')
 const fs = require('fs')
 
-const Game = require('./models/Game')
 const Chat = require('./models/chat')
 
 module.exports = class Eshop {
