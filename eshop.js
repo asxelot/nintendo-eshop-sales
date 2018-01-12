@@ -7,7 +7,7 @@ module.exports = class Eshop {
   /**
    * Creates an instance of Eshop.
    *
-   * @param {TelegramBot} bot
+   * @param {Bot} bot
    */
   constructor (bot) {
     this.bot = bot
