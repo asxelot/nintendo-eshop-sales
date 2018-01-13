@@ -2,6 +2,12 @@ const TelegramBot = require('node-telegram-bot-api')
 
 const Chat = require('./models/chat')
 
+/**
+ * Telegram Bot message
+ * @typedef {{ text: string, date: number, chat: chat }} msg
+ * @typedef {{ id: number, first_name: string, last_name: string, type: string }} chat
+ */
+
 module.exports = class Bot {
   /**
    * Creates an instance of Bot.
@@ -21,12 +27,7 @@ module.exports = class Bot {
   /**
    * Subscribe user
    *
-   * @param {Object} msg
-   * @param {Object} msg.chat
-   * @param {number} msg.chat.id
-   * @param {string} msg.chat.first_name
-   * @param {string} msg.chat.last_name
-   * @param {string} msg.chat.type
+   * @param {msg} msg
    */
   async onStart (msg) {
     const chatId = msg.chat.id
@@ -48,9 +49,7 @@ module.exports = class Bot {
   /**
    * Unsubscribe user
    *
-   * @param {Object} msg
-   * @param {Object} msg.chat
-   * @param {number} msg.chat.id
+   * @param {msg} msg
    */
   async onStop (msg) {
     const chatId = msg.chat.id
@@ -67,16 +66,11 @@ module.exports = class Bot {
   /**
    * Test
    *
-   * @param {Object} msg
-   * @param {string} msg.text
-   * @param {number} msg.date
-   * @param {Object} msg.chat
-   * @param {number} msg.chat.id
-   * @param {string} msg.chat.first_name
-   * @param {string} msg.chat.last_name
-   * @param {string} msg.chat.type
+   * @param {msg} msg
    */
   onTest (msg) {
+    console.log(msg.text)
+    console.log(msg.chat.first_name, msg.chat.last_name)
     this.bot.sendMessage(msg.chat.id, '*bold* _italic_ `code`', { parse_mode: 'Markdown' })
   }
 

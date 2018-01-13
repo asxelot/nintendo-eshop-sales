@@ -35,7 +35,7 @@ module.exports = class Eshop {
   /**
    * Save games
    *
-   * @param {Promise.<Object[]>} games
+   * @param {Object[]} games
    */
   async _saveGames (games) {
     await Game.remove({})
@@ -46,7 +46,7 @@ module.exports = class Eshop {
   /**
    * Get previous games to compare
    *
-   * @returns {Promise.<Object[]>}
+   * @returns {Promise.<Game[]>}
    */
   _getOldGames () {
     return Game.find()
@@ -91,10 +91,7 @@ module.exports = class Eshop {
   /**
    * Promise request wrapper
    *
-   * @param {Object} options
-   * @param {string} options.url
-   * @param {boolean} options.json
-   * @param {Object} options.qs
+   * @param {{ url: string, json: boolean, qs: Object }} options
    * @returns {Promise.<Object>}
    */
   _request (options) {
@@ -125,13 +122,14 @@ module.exports = class Eshop {
   /**
    * Create message and send it
    *
-   * @param {Promise.<Object[]>} games
+   * @param {Object[]} games
    */
   async _sendGames (games) {
     for (let i = 0; i < games.length; i++) {
+      const game = games[i]
       const msg = [
-        `[${games[i].title}](https://www.nintendo.com/games/detail/${games[i].id})`,
-        `*$${games[i].sale_price}* \`$${games[i].eshop_price}\``
+        `[${game.title}](https://www.nintendo.com/games/detail/${game.id})`,
+        `*$${game.sale_price}* \`$${game.eshop_price}\``
       ].join('\n')
 
       await this._sendToAll(msg)

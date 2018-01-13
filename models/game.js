@@ -10,7 +10,7 @@ const GameSchema = mongoose.Schema({
   free_to_start: String,
   front_box_art: String,
   game_code: String,
-  id: String,
+  id: { type: String, required: true, unique: true },
   nsuid: String,
   number_of_players: String,
   release_date: String,
