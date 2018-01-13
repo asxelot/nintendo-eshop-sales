@@ -2,15 +2,15 @@ const request = require('request')
 
 const Chat = require('./models/chat')
 const Game = require('./models/game')
+const Bot = require('./bot')
 
 module.exports = class Eshop {
   /**
    * Creates an instance of Eshop.
    *
-   * @param {Bot} bot
    */
-  constructor (bot) {
-    this.bot = bot
+  constructor () {
+    this.bot = new Bot()
   }
 
   /**
