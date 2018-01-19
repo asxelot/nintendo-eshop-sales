@@ -7,7 +7,7 @@ const Eshop = require('./eshop')
 const { PORT, HEROKU_APP_URL, MONGO_URL } = process.env
 
 mongoose.Promise = Promise
-mongoose.createConnection(MONGO_URL, { useMongoClient: true })
+mongoose.connect(MONGO_URL)
   .then(main)
   .catch(err => console.error('MongoError: ' + err))
 

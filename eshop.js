@@ -18,6 +18,8 @@ module.exports = class Eshop {
    *
    */
   async run () {
+    console.log('run')
+
     try {
       const oldGames = await this._getOldGames()
       const games = await this._loadAllGames()
@@ -49,7 +51,9 @@ module.exports = class Eshop {
    * @returns {Promise.<Game[]>}
    */
   _getOldGames () {
-    return Game.find()
+    console.log('get old games')
+
+    return Game.find({})
   }
 
   /**
@@ -58,6 +62,8 @@ module.exports = class Eshop {
    * @returns {Promise.<Object[]>}
    */
   async _loadAllGames () {
+    console.log('load all games')
+
     const url = 'https://www.nintendo.com/json/content/get/filter/game'
     const games = []
     const limit = 50
@@ -127,12 +133,41 @@ module.exports = class Eshop {
   async _sendGames (games) {
     for (let i = 0; i < games.length; i++) {
       const game = games[i]
+      const score = await this.getOpenCriticScore(game.title)
+      const s = score ? `(${score})` : ``
       const msg = [
-        `[${game.title}](https://www.nintendo.com/games/detail/${game.id})`,
-        `*$${game.sale_price}* \`$${game.eshop_price}\``
+        `[${game.title}](https://www.nintendo.com/games/detail/${game.id}) ${s}`,
+        `*$${game.sale_price}* $${game.eshop_price}`
       ].join('\n')
 
       await this._sendToAll(msg)
     }
+  }
+
+  async getOpenCriticScore (name) {
+    const searchGames = await this._request({
+      url: 'http://opencritic.com/api/site/search',
+      json: true,
+      qs: {
+        criteria: name
+      }
+    })
+
+    const [game] = searchGames.filter(e => e.relation === 'Game' && e.name === name)
+
+    if (!game) return null
+
+    const { Reviews } = await this._request({
+      url: 'http://opencritic.com/api/game',
+      json: true,
+      qs: {
+        id: game.id
+      }
+    })
+
+    const reviewsWithScore = Reviews.filter(r => r.score !== null)
+    const score = reviewsWithScore.reduce((sum, r) => sum + r.score, 0) / reviewsWithScore.length
+
+    return Math.round(score)
   }
 }

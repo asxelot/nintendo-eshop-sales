@@ -71,7 +71,10 @@ module.exports = class Bot {
   onTest (msg) {
     console.log(msg.text)
     console.log(msg.chat.first_name, msg.chat.last_name)
-    this.bot.sendMessage(msg.chat.id, '*bold* _italic_ `code`', { parse_mode: 'Markdown' })
+
+    const text = `[Game title](https://www.nintendo.com/games/detail/thumper-switch)(99)`
+
+    this.bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown' })
   }
 
   /**
