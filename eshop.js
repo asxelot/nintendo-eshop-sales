@@ -21,14 +21,15 @@ module.exports = class Eshop {
     console.log('run')
 
     try {
-      const oldGames = await this._getOldGames()
-      const games = await this._loadAllGames()
-      const oldIds = oldGames.map(g => g.id)
-      const newGames = games.filter(game => !oldIds.includes(game.id))
+      const cachedGames = await this._getCachedGames()
+      const cachedIds = cachedGames.map(g => g.id)
+      const salesGames = await this._loadGames('sale')
+      const newGames = await this._loadGames('new')
+      const allGames = [...salesGames, ...newGames]
+      const filteredGames = allGames.filter(game => !cachedIds.includes(game.id))
 
-      await this._sendGames(newGames)
-
-      await this._saveGames(games)
+      await this._sendGames(filteredGames)
+      await this._saveGames(allGames)
     } catch (error) {
       console.error(error.toString())
     }
@@ -50,36 +51,44 @@ module.exports = class Eshop {
    *
    * @returns {Promise.<Game[]>}
    */
-  _getOldGames () {
-    console.log('get old games')
+  _getCachedGames () {
+    console.log('get cached games')
 
     return Game.find({})
   }
 
   /**
-   * Load all sales games
+   * load games by category
    *
+   * @param {string} category - new or sale
    * @returns {Promise.<Object[]>}
    */
-  async _loadAllGames () {
-    console.log('load all games')
-
+  async _loadGames (category) {
     const url = 'https://www.nintendo.com/json/content/get/filter/game'
     const games = []
     const limit = 50
     let offset = 0
     let total = 0
+    const qs = {
+      limit,
+      offset,
+      system: 'switch'
+    }
+
+    switch (category) {
+      case 'sale':
+        qs.sale = true
+        break
+      case 'new':
+        qs.availability = 'new'
+        break
+    }
 
     do {
       const res = await this._request({
         url,
         json: true,
-        qs: {
-          limit,
-          offset,
-          system: 'switch',
-          sale: true
-        }
+        qs
       })
 
       total = res.filter.total
@@ -90,7 +99,12 @@ module.exports = class Eshop {
       games.push(...limitedGames)
     } while (offset < total)
 
-    console.log('loaded sales games', games.length)
+    console.log(`loaded ${category} games`, games.length)
+
+    games.forEach(game => {
+      game.category = category
+    })
+
     return games
   }
 
@@ -134,16 +148,22 @@ module.exports = class Eshop {
     for (let i = 0; i < games.length; i++) {
       const game = games[i]
       const score = await this.getOpenCriticScore(game.title)
-      const s = score ? `(${score})` : ``
       const msg = [
-        `[${game.title}](https://www.nintendo.com/games/detail/${game.id}) ${s}`,
-        `*$${game.sale_price}* $${game.eshop_price}`
+        `*${game.category.toUpperCase()}*`,
+        `[${game.title}](https://www.nintendo.com/games/detail/${game.id})${score}`,
+        game.sale_price ? `*$${game.sale_price}* $${game.eshop_price}` : `*$${game.eshop_price}*`
       ].join('\n')
 
       await this._sendToAll(msg)
     }
   }
 
+  /**
+   * get game score from opencritic.com
+   *
+   * @param {string} name
+   * @returns {string}
+   */
   async getOpenCriticScore (name) {
     const searchGames = await this._request({
       url: 'http://opencritic.com/api/site/search',
@@ -155,7 +175,7 @@ module.exports = class Eshop {
 
     const [game] = searchGames.filter(e => e.relation === 'Game' && e.name === name)
 
-    if (!game) return null
+    if (!game) return ``
 
     const { Reviews } = await this._request({
       url: 'http://opencritic.com/api/game',
@@ -166,8 +186,8 @@ module.exports = class Eshop {
     })
 
     const reviewsWithScore = Reviews.filter(r => r.score !== null)
-    const score = reviewsWithScore.reduce((sum, r) => sum + r.score, 0) / reviewsWithScore.length
+    const score = Math.round(reviewsWithScore.reduce((sum, r) => sum + r.score, 0) / reviewsWithScore.length)
 
-    return Math.round(score)
+    return score ? ` [(${score})](http://opencritic.com/game/${game.id}/)` : ``
   }
 }

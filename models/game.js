@@ -17,7 +17,8 @@ const GameSchema = mongoose.Schema({
   sale_price: String,
   slug: String,
   system: String,
-  title: String
+  title: String,
+  category: String
 })
 
 module.exports = mongoose.model('Game', GameSchema)

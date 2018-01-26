@@ -19,7 +19,7 @@ function main () {
   // eshop.run()
   setInterval(() => {
     eshop.run()
-  }, 24 * 60 * 60 * 1000)
+  }, 2 * 60 * 60 * 1000)
 
   // keep Heroku asleep
   http.createServer((req, res) => res.end('Hello')).listen(PORT)
