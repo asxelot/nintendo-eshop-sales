@@ -164,7 +164,8 @@ module.exports = class Eshop {
     const chats = await Chat.find()
 
     return Promise.all(chats.map(chat => {
-      return this.bot.sendMessage(chat.id, msg, { parse_mode: 'Markdown' }).catch(e => console.error(e))
+      return this.bot.sendMessage(chat.id, msg, { parse_mode: 'Markdown' })
+        .catch(e => console.error(e.toString()))
     }))
   }
 
