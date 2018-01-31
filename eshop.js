@@ -163,9 +163,9 @@ module.exports = class Eshop {
   async _sendToAll (msg) {
     const chats = await Chat.find()
 
-    for (let i = 0; i < chats.length; i++) {
-      await this.bot.sendMessage(chats[i].id, msg, { parse_mode: 'Markdown' })
-    }
+    return Promise.all(chats.map(chat => {
+      return this.bot.sendMessage(chat.id, msg, { parse_mode: 'Markdown' }).catch(e => console.error(e))
+    }))
   }
 
   /**
