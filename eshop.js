@@ -25,7 +25,7 @@ module.exports = class Eshop {
       const cachedIds = cachedGames.map(g => g.id)
       const salesGames = await this._loadGames('sale')
       const newGames = await this._loadGames('new')
-      const allGames = [...salesGames, ...newGames]
+      const allGames = await this._getPrices([...salesGames, ...newGames])
       const filteredGames = allGames.filter(game => !cachedIds.includes(game.id))
 
       await this._sendGames(filteredGames)
@@ -85,27 +85,47 @@ module.exports = class Eshop {
     }
 
     do {
-      const res = await this._request({
-        url,
-        json: true,
-        qs
-      })
+      const res = await this._request({ url, qs, json: true })
 
       total = res.filter.total
       offset += limit
 
       const { game } = res.games
-      const limitedGames = Array.isArray(game) ? game : [game] // WTF Nintendo?
-      games.push(...limitedGames)
+      Array.isArray(game) ? games.push(...game) : games.push(game) // WTF Nintendo?
     } while (offset < total)
 
     console.log(`loaded ${category} games`, games.length)
 
-    games.forEach(game => {
-      game.category = category
-    })
+    games.forEach(game => { game.category = category })
 
     return games
+  }
+
+  /**
+   * get prices
+   *
+   * @param {Object[]} games
+   */
+  async _getPrices (games) {
+    const res = await this._request({
+      url: 'https://api.ec.nintendo.com/v1/price',
+      json: true,
+      qs: {
+        country: 'US',
+        lang: 'en',
+        ids: games.map(g => g.nsuid).join(',')
+      }
+    })
+
+    return games.map(game => {
+      const [price] = res.prices.filter(p => p.title_id === game.nsuid)
+
+      return {
+        ...game,
+        eshop_price: price.regular_price.raw_value,
+        sale_price: price.discount_price && price.discount_price.raw_value
+      }
+    })
   }
 
   /**
