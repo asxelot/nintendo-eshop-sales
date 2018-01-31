@@ -25,7 +25,7 @@ module.exports = class Eshop {
       const cachedIds = cachedGames.map(g => g.id)
       const salesGames = await this._loadGames('sale')
       const newGames = await this._loadGames('new')
-      const allGames = await this._getPrices([...salesGames, ...newGames])
+      const allGames = [...salesGames, ...newGames]
       const filteredGames = allGames.filter(game => !cachedIds.includes(game.id))
 
       await this._sendGames(filteredGames)
@@ -65,7 +65,7 @@ module.exports = class Eshop {
    */
   async _loadGames (category) {
     const url = 'https://www.nintendo.com/json/content/get/filter/game'
-    const games = []
+    const allGames = []
     const limit = 50
     let offset = 0
     let total = 0
@@ -85,20 +85,23 @@ module.exports = class Eshop {
     }
 
     do {
-      const res = await this._request({ url, qs, json: true })
+      const gamesRes = await this._request({ url, qs, json: true })
 
-      total = res.filter.total
+      total = gamesRes.filter.total
       offset += limit
 
-      const { game } = res.games
-      Array.isArray(game) ? games.push(...game) : games.push(game) // WTF Nintendo?
+      const { game } = gamesRes.games
+      const games = Array.isArray(game) ? game : [game]
+      const gamesWithPrices = await this._getPrices(games)
+
+      allGames.push(...gamesWithPrices)
     } while (offset < total)
 
-    console.log(`loaded ${category} games`, games.length)
+    console.log(`loaded ${category} games`, allGames.length)
 
-    games.forEach(game => { game.category = category })
+    allGames.forEach(game => { game.category = category })
 
-    return games
+    return allGames
   }
 
   /**
@@ -117,8 +120,14 @@ module.exports = class Eshop {
       }
     })
 
+    if (res.error) {
+      throw new Error(res.error.message)
+    }
+
     return games.map(game => {
-      const [price] = res.prices.filter(p => p.title_id === game.nsuid)
+      const [price] = res.prices.filter(p => p.title_id.toString() === game.nsuid)
+
+      if (!price) return game
 
       return {
         ...game,
