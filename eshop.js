@@ -175,6 +175,8 @@ module.exports = class Eshop {
    * @param {Object[]} games
    */
   async _sendGames (games) {
+    console.log('send games', games.length)
+
     for (let i = 0; i < games.length; i++) {
       const game = games[i]
       const score = await this.getOpenCriticScore(game.title)
