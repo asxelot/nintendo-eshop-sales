@@ -28,8 +28,8 @@ module.exports = class Eshop {
       const allGames = [...salesGames, ...newGames]
       const filteredGames = allGames.filter(game => !cachedIds.includes(game.id))
 
-      await this._sendGames(filteredGames)
       await this._saveGames(allGames)
+      await this._sendGames(filteredGames)
     } catch (error) {
       console.error(error.toString())
     }
